@@ -1,0 +1,1 @@
+docker run -d --privileged -p 10029:22 -v ~/repositories:/git/gitedit/repositories -v ~/.gitolite.rc:/git/gitedit/.gitolite.rc --name gitolite-01 -h gitolite-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') gitolite

@@ -1,0 +1,16 @@
+#For run the console
+
+docker exec -ti postgresdb-01 /usr/pgsql-9.4/bin/psql -U root -d database-name
+
+#For other servers
+
+docker exec -ti postgresdb-01 /usr/pgsql-9.4/bin/psql -h {host} -p {port} -U {user-name} -d {database-name}
+
+
+#Backup:
+
+docker exec -ti postgresdb-01 /usr/pgsql-9.4/bin/pg_dump -U {user-name} {source_db} -f {dumpfilename.sql}
+
+#Restore:
+
+docker exec -ti postgresdb-01 /usr/pgsql-9.4/bin/psql -U {user-name} -d {desintation_db}-f {dumpfilename.sql}

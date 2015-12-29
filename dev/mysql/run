@@ -1,0 +1,1 @@
+docker run -d --privileged -p 3306:3306 -u=27:27 -v ~/datamysql:/datamysql --name mysql-01 -h mysql-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') mysqldb

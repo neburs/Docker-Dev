@@ -1,0 +1,1 @@
+docker run -d --privileged -p 10088:8080 -v ~/share-jenkins-data:/share-jenkins-data --name jenkins-01 -h jenkins-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') custom-jenkins

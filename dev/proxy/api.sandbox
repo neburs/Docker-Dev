@@ -1,0 +1,30 @@
+server {
+    listen 80;
+    server_name api.sandbox;
+    return       301 https://api.sandbox$request_uri;
+}
+server {
+    listen 443 ssl;
+
+    ssl on;
+    ssl_certificate        /etc/ssl/certs/xip.io/xip.io.crt;
+    ssl_certificate_key    /etc/ssl/certs/xip.io/xip.io.key;
+
+    proxy_ssl_certificate        /etc/ssl/certs/xip.io/xip.io.crt;
+    proxy_ssl_certificate_key    /etc/ssl/certs/xip.io/xip.io.key;
+
+    server_name api.gas.sandbox;
+
+    access_log /var/log/nginx/api.com-access.log;
+    error_log  /var/log/nginx/api.com-error.log error;
+
+    location / {
+        proxy_cache_bypass  $http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+        proxy_set_header X-Real-IP  $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass        https://api.sandbox;
+    }
+}
+

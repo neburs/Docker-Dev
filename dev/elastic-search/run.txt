@@ -1,0 +1,1 @@
+docker run -d --privileged -p 9200:9200 --name elastic-search-01 -h elastic-search-01 -v ~/projects/dataelasticsearch/data:/usr/share/elasticsearch/data  --dns $(ifconfig docker0 | awk '/inet / { print $2 }') elastic-search

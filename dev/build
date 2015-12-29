@@ -1,0 +1,73 @@
+#!/bin/bash
+
+ImageContainerLocation='./centos-7.0-1406.tar'
+ImageName='custom-centos-7:1406'
+HomeDir="$HOME"
+
+if [ "$1" == "--from-local" ]; then
+	if [ ! -e "./php-fpm/sshkey/devglobal" ]; then
+		if [ -e "$HomeDir/.ssh/devglobal" ]; then
+			cp $HomeDir/.ssh/devglobal ./php-fpm/sshkey/devglobal
+		else
+			echo "not exist the devglobal public key on ~/.ssh/devglobal"
+			exit
+		fi
+	fi
+	if [ -e $ImageContainerLocation ]; then
+		cat $ImageContainerLocation | docker import - $ImageName
+	else
+		echo "the image $ImageContainerLocation not exist"
+		exit
+	fi
+
+	cd elastic-search
+	docker build -t=elastic-search --force-rm=true --file=Dockerfile .
+	cd ../kibana
+	docker build -t=kibana --force-rm=true --file=Dockerfile .
+	cd ../logstash
+	docker build -t=logstash --force-rm=true --file=Dockerfile .
+	cd ../redis
+	docker build -t=redis --force-rm=true --file=Dockerfile .
+	cd ../rabbitmq
+	docker build -t=rabbitmq --force-rm=true --file=Dockerfile .
+	cd ../postgresql 
+	docker build -t=postgresqldb --force-rm=true --file=Dockerfile .
+	cd ../smtp
+	docker build -t=custom-smtp --force-rm=true --file=Dockerfile .
+	cd ../php-fpm7
+	docker build -t=php-fpm7 --force-rm=true --file=Dockerfile .
+	cd ../nginx
+	docker build -t=nginx --force-rm=true --file=Dockerfile .
+	cd ../api
+	docker build -t=api-nginx --force-rm=true --file=Dockerfile .
+	cd ../proxy
+	docker build -t=proxy-nginx --force-rm=true --file=Dockerfile .
+	cd ..
+fi
+
+if [ "$1" == "--from-remote" ]; then
+	Remote="192.168.1.82:5000/"
+else
+	Remote=""
+fi
+
+if [ ! -d "$HomeDir/projects" ]; then
+	mkdir $HomeDir/projects
+
+	git clone git clone git@bitbucket.org:grupoblidoo/visas-public.git $HomeDir/projects/greencard
+fi
+
+docker run -d --privileged -p 53:53/udp --name dns-01 -h dns-01 -v /var/run/docker.sock:/docker.sock phensley/docker-dns --domain sandbox
+
+docker run -d --privileged -p 9200:9200 --name elastic-search-01 -h elastic-search-01 -v $HomeDir/projects/dataelasticsearch/data:/usr/share/elasticsearch/data --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}elastic-search
+docker run -d --privileged -p 25:25 --name custom-smtp-01 -h custom-smtp-01 ${Remote}custom-smtp
+docker run -d --privileged -p 5001:5001 --name logstash-01 -h logstash-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}logstash
+docker run -d --privileged -p 5601:5601 --name kibana-01 -h kibana-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}kibana
+docker run -d --privileged -p 5672:5672 -p 15672:15672 --name rabbitmq-01 -h rabbitmq-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}rabbitmq
+docker run -d --privileged -p 6379:6379 --name redis-01 -h redis-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}redis
+docker run -d --privileged -p 5432:5432 -v $HomeDir/projects:/data -v $HomeDir/projects/datapostgresql-greencard:/datapostgres --name postgresdb-01 -h postgresdb-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}postgresqldb
+docker run -d --privileged -p 9000:9000 -p 9010:9010 -u=1000:1000 -v $HomeDir/projects:/data --name php-fpm7-01 -h php-fpm7-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}php-fpm7
+
+docker run -d --privileged -v $HomeDir/projects:/data --name api -h api --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}api-nginx
+
+docker run -d --privileged -p 80:80 -p 443:443 --name proxy -h proxy --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}proxy
