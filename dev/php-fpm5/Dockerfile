@@ -73,9 +73,8 @@ RUN chown $userid:$groupid /home/$userdeb/.gitconfig
 
 # Configure php
 RUN sed -i 's#;date.timezone =.*#date.timezone = "Europe/Madrid"#' /opt/remi/php56/root/etc/php.ini && \
-	sed -i 's#upload_max_filesize = 2M#upload_max_filesize = 30M#' /opt/remi/php56/root/etc/php.ini && \
+	sed -i 's#upload_max_filesize = 2M#upload_max_filesize = 35M#' /opt/remi/php56/root/etc/php.ini && \
 	sed -i 's#memory_limit = 128M#memory_limit = 165M#' /opt/remi/php56/root/etc/php.ini && \
-	sed -i 's#upload_max_filesize = 30M#upload_max_filesize = 35M#' /opt/remi/php56/root/etc/php.ini && \
 	sed -i 's#post_max_size = 8M#post_max_size = 35M#' /opt/remi/php56/root/etc/php.ini && \
 	sed -i -e "s/daemonize\s*=\s*yes/daemonize = no/g" /opt/remi/php56/root/etc/php-fpm.conf && \
 	sed -i "/^listen = /clisten = 0.0.0.0:9000" /opt/remi/php56/root/etc/php-fpm.d/www.conf && \
