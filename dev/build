@@ -32,6 +32,10 @@ if [ "$1" == "--from-local" ]; then
 	docker build -t=rabbitmq --force-rm=true --file=Dockerfile .
 	cd ../postgresql 
 	docker build -t=postgresqldb --force-rm=true --file=Dockerfile .
+	cd ../cassandra0.8
+        docker build -t=cassandra0.8 --force-rm=true --file=Dockerfile .
+        cd ../mongodb
+        docker build -t=mongodb --force-rm=true --file=Dockerfile .
 	cd ../smtp
 	docker build -t=custom-smtp --force-rm=true --file=Dockerfile .
 	cd ../php-fpm7
@@ -65,6 +69,8 @@ docker run -d --privileged -p 5001:5001 --name logstash-01 -h logstash-01 --dns 
 docker run -d --privileged -p 5601:5601 --name kibana-01 -h kibana-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}kibana
 docker run -d --privileged -p 5672:5672 -p 15672:15672 --name rabbitmq-01 -h rabbitmq-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}rabbitmq
 docker run -d --privileged -p 6379:6379 --name redis-01 -h redis-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}redis
+docker run -d -p 27017:27017 --name mongodb-01 -h mongodb-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}mongodb
+docker run -d --privileged -p 9160:9160 --name cassandra-01 -h cassandra-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}cassandra0.8
 docker run -d --privileged -p 5432:5432 -v $HomeDir/projects:/data -v $HomeDir/projects/datapostgresql-greencard:/datapostgres --name postgresdb-01 -h postgresdb-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}postgresqldb
 docker run -d --privileged -p 9000:9000 -p 9010:9010 -u=1000:1000 -v $HomeDir/projects:/data --name php-fpm7-01 -h php-fpm7-01 --dns $(ifconfig docker0 | awk '/inet / { print $2 }') ${Remote}php-fpm7
 
