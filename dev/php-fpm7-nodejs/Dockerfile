@@ -6,7 +6,6 @@ ENV userdeb nginx
 ENV userid 1000
 ENV groupdeb nginx
 ENV groupid 1000
-ENV LARA_ENV docker
 
 # Install Node.js
 RUN yum install -y \

@@ -6,7 +6,6 @@ ENV userdeb nginx
 ENV userid 1000
 ENV groupdeb nginx
 ENV groupid 1000
-ENV LARA_ENV docker
 
 #Configure TimeZone
 RUN ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
