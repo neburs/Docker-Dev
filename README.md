@@ -47,6 +47,11 @@ You must have configured your computer for works git with github
 >  If you are in Ubuntu 14.04, use docker.io instead of docker
 >
 > $ sudo service docker restart
+>
+>
+> Note: For prevent problems with file permissions please switch storage driver to devicemapper
+>
+> $ echo 'DOCKER_OPTS="$DOCKER_OPTS --storage-driver=devicemapper"' >> /etc/default/docker
 
 * For Mac
 
