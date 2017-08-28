@@ -1,4 +1,4 @@
-FROM custom-centos-7:latest
+FROM centos:7
 MAINTAINER Ruben "ruben@vasallo.nom.es"
 
 ENV TERM xterm-256color
